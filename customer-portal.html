@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoCare — Customer Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.16);
+    --text: #f0f0f0;
+    --muted: #7a7a8a;
+    --accent: #e8ff47;
+    --accent-dim: rgba(232,255,71,0.12);
+    --accent-text: #0d0d0f;
+    --red: #ff5f57;
+    --green: #28c840;
+    --blue: #4f9eff;
+    --orange: #ff9f2e;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,13,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px;
+  }
+  .nav-logo {
+    font-size: 15px; font-weight: 600; letter-spacing: -0.02em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-logo .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); display: inline-block;
+  }
+  .nav-links { display: flex; gap: 6px; }
+  .nav-links a {
+    font-size: 13px; color: var(--muted); text-decoration: none;
+    padding: 5px 12px; border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--surface2); }
+
+  /* HERO */
+  .hero {
+    padding: 3.5rem 2rem 2rem;
+    max-width: 900px; margin: 0 auto;
+    animation: fadeUp 0.5s ease both;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-family: var(--mono); color: var(--accent);
+    background: var(--accent-dim); border: 1px solid rgba(232,255,71,0.2);
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 4vw, 42px); font-weight: 600;
+    letter-spacing: -0.03em; line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p { color: var(--muted); font-size: 15px; max-width: 480px; }
+
+  /* LAYOUT */
+  .main { max-width: 900px; margin: 0 auto; padding: 0 2rem 4rem; }
+
+  /* SECTION */
+  .section { margin-bottom: 2rem; animation: fadeUp 0.5s ease both; }
+  .section:nth-child(2) { animation-delay: 0.05s; }
+  .section:nth-child(3) { animation-delay: 0.1s; }
+  .section:nth-child(4) { animation-delay: 0.15s; }
+
+  .section-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 1rem;
+  }
+  .section-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .section-icon.yellow { background: var(--accent-dim); color: var(--accent); }
+  .section-icon.blue { background: rgba(79,158,255,0.12); color: var(--blue); }
+  .section-icon.orange { background: rgba(255,159,46,0.12); color: var(--orange); }
+  .section-icon.green { background: rgba(40,200,64,0.12); color: var(--green); }
+  .section-title { font-size: 14px; font-weight: 500; color: var(--muted); font-family: var(--mono); }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--border-hover); }
+
+  /* FORM FIELDS */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .grid-full { grid-column: 1 / -1; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .field input, .field select, .field textarea {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); font-family: var(--font); font-size: 14px;
+    padding: 9px 12px; border-radius: var(--radius);
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+    width: 100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: rgba(232,255,71,0.5);
+    box-shadow: 0 0 0 3px rgba(232,255,71,0.08);
+  }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .field select option { background: var(--surface2); }
+
+  /* VEHICLE PREVIEW */
+  .vehicle-preview {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 16px; margin-top: 1rem;
+  }
+  .vehicle-icon { font-size: 24px; }
+  .vehicle-text { flex: 1; }
+  .vehicle-text .vname { font-size: 14px; font-weight: 500; }
+  .vehicle-text .vplate { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+  /* SERVICE MODULES */
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .module-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: var(--module-color, var(--accent));
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .module-card:hover { border-color: var(--border-hover); transform: translateY(-1px); }
+  .module-card:hover::before { opacity: 1; }
+  .module-card.active {
+    border-color: var(--module-color, var(--accent));
+    background: var(--surface2);
+  }
+  .module-card.active::before { opacity: 1; }
+  .module-top { display: flex; align-items: flex-start; justify-content: space-between; }
+  .module-emoji { font-size: 22px; }
+  .module-check {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; transition: all 0.15s; flex-shrink: 0;
+  }
+  .module-card.active .module-check {
+    background: var(--module-color, var(--accent));
+    border-color: var(--module-color, var(--accent));
+    color: var(--accent-text);
+  }
+  .module-name { font-size: 14px; font-weight: 500; }
+  .module-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .module-badge {
+    font-size: 11px; font-family: var(--mono);
+    padding: 2px 7px; border-radius: 4px;
+    background: var(--accent-dim); color: var(--accent);
+    align-self: flex-start;
+  }
+
+  /* CUSTOM MODULE */
+  .add-module-btn {
+    background: transparent; border: 1px dashed var(--border);
+    border-radius: var(--radius-lg); padding: 1.25rem;
+    cursor: pointer; color: var(--muted); font-family: var(--font);
+    font-size: 14px; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 140px;
+  }
+  .add-module-btn:hover { border-color: var(--border-hover); color: var(--text); background: var(--surface); }
+
+  /* SELECTED SERVICES SUMMARY */
+  .services-summary { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1rem; min-height: 32px; }
+  .service-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; padding: 4px 10px; border-radius: 20px;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text); transition: background 0.15s;
+  }
+  .service-tag .tag-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .service-tag .remove { color: var(--muted); cursor: pointer; font-size: 14px; line-height: 1; }
+  .service-tag .remove:hover { color: var(--red); }
+
+  /* NOTES */
+  .notes-char { font-size: 11px; color: var(--muted); text-align: right; margin-top: 4px; }
+
+  /* DATE/TIME */
+  .datetime-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* SUBMIT */
+  .form-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 1.5rem; margin-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .form-footer-left { font-size: 13px; color: var(--muted); }
+  .form-footer-left span { color: var(--text); font-weight: 500; }
+  .submit-btn {
+    background: var(--accent); color: var(--accent-text);
+    border: none; border-radius: var(--radius); padding: 10px 24px;
+    font-family: var(--font); font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .submit-btn:hover { opacity: 0.9; }
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* SUCCESS */
+  .success-screen {
+    display: none; text-align: center;
+    padding: 4rem 2rem; max-width: 500px; margin: 0 auto;
+    animation: fadeUp 0.4s ease both;
+  }
+  .success-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: rgba(40,200,64,0.12); border: 1px solid rgba(40,200,64,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; margin: 0 auto 1.5rem;
+  }
+  .success-screen h2 { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+  .success-screen p { color: var(--muted); margin-bottom: 2rem; }
+  .success-ref { font-family: var(--mono); font-size: 13px; color: var(--accent); background: var(--accent-dim); padding: 8px 16px; border-radius: 8px; display: inline-block; margin-bottom: 2rem; }
+
+  .reset-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); border-radius: var(--radius);
+    padding: 10px 20px; font-family: var(--font); font-size: 14px;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .reset-btn:hover { background: var(--surface2); }
+
+  /* MODAL for custom service */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border-hover);
+    border-radius: var(--radius-lg); padding: 1.75rem; width: 420px; max-width: 90vw;
+    animation: fadeUp 0.25s ease both;
+  }
+  .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 1rem; }
+  .modal-fields { display: flex; flex-direction: column; gap: 12px; margin-bottom: 1.25rem; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .modal-cancel {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); border-radius: var(--radius);
+    padding: 8px 16px; font-family: var(--font); cursor: pointer;
+    font-size: 14px; transition: border-color 0.15s;
+  }
+  .modal-cancel:hover { border-color: var(--border-hover); color: var(--text); }
+  .modal-save {
+    background: var(--accent); color: var(--accent-text);
+    border: none; border-radius: var(--radius);
+    padding: 8px 16px; font-family: var(--font); cursor: pointer;
+    font-size: 14px; font-weight: 600;
+  }
+  .color-picker-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .color-dot {
+    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: border-color 0.15s;
+  }
+  .color-dot.selected { border-color: white; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .grid-2, .grid-3, .datetime-grid { grid-template-columns: 1fr; }
+    .form-footer { flex-direction: column; gap: 1rem; align-items: stretch; }
+    .submit-btn { justify-content: center; }
+    nav { padding: 0 1rem; }
+    .nav-links { display: none; }
+    .hero, .main { padding-left: 1rem; padding-right: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <span class="dot"></span>
+    AutoCare Portal
+  </div>
+  <div class="nav-links">
+    <a href="#customer" class="active">Customer</a>
+    <a href="#vehicle">Vehicle</a>
+    <a href="#services">Services</a>
+    <a href="#schedule">Schedule</a>
+  </div>
+</nav>
+
+<div id="form-view">
+  <div class="hero">
+    <div class="hero-tag">✦ Service Request</div>
+    <h1>Book your <span>next service</span></h1>
+    <p>Fill in your details, pick your services, and we'll take care of the rest.</p>
+  </div>
+
+  <div class="main">
+
+    <!-- CUSTOMER INFO -->
+    <div class="section" id="customer">
+      <div class="section-header">
+        <div class="section-icon yellow">👤</div>
+        <span class="section-title">01 — Customer information</span>
+      </div>
+      <div class="card">
+        <div class="grid-2">
+          <div class="field">
+            <label>First name</label>
+            <input type="text" id="fname" placeholder="John" oninput="updateVehiclePreview()" />
+          </div>
+          <div class="field">
+            <label>Last name</label>
+            <input type="text" id="lname" placeholder="Doe" oninput="updateVehiclePreview()" />
+          </div>
+          <div class="field">
+            <label>Phone number</label>
+            <input type="tel" id="phone" placeholder="+1 (312) 555-0000" />
+          </div>
+          <div class="field">
+            <label>Email address</label>
+            <input type="email" id="email" placeholder="john@example.com" />
+          </div>
+          <div class="field grid-full">
+            <label>Street address</label>
+            <input type="text" id="street" placeholder="123 Wacker Drive" />
+          </div>
+          <div class="field">
+            <label>City</label>
+            <input type="text" id="city" placeholder="Chicago" />
+          </div>
+          <div class="field">
+            <label>State / ZIP</label>
+            <input type="text" id="statezip" placeholder="IL 60601" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VEHICLE INFO -->
+    <div class="section" id="vehicle">
+      <div class="section-header">
+        <div class="section-icon blue">🚗</div>
+        <span class="section-title">02 — Vehicle details</span>
+      </div>
+      <div class="card">
+        <div class="grid-3">
+          <div class="field">
+            <label>Year</label>
+            <input type="text" id="vyear" placeholder="2022" oninput="updateVehiclePreview()" />
+          </div>
+          <div class="field">
+            <label>Make</label>
+            <input type="text" id="vmake" placeholder="Toyota" oninput="updateVehiclePreview()" />
+          </div>
+          <div class="field">
+            <label>Model</label>
+            <input type="text" id="vmodel" placeholder="Camry" oninput="updateVehiclePreview()" />
+          </div>
+          <div class="field">
+            <label>License plate</label>
+            <input type="text" id="vplate" placeholder="IL A12 3BC" oninput="updateVehiclePreview()" />
+          </div>
+          <div class="field">
+            <label>Mileage</label>
+            <input type="text" id="vmiles" placeholder="45,000 mi" />
+          </div>
+          <div class="field">
+            <label>Color</label>
+            <input type="text" id="vcolor" placeholder="Silver" />
+          </div>
+        </div>
+        <div class="vehicle-preview" id="vehicle-preview">
+          <div class="vehicle-icon">🚘</div>
+          <div class="vehicle-text">
+            <div class="vname" id="preview-name">Your vehicle will appear here</div>
+            <div class="vplate" id="preview-plate">Enter details above</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="section" id="services">
+      <div class="section-header">
+        <div class="section-icon orange">🔧</div>
+        <span class="section-title">03 — Select services</span>
+      </div>
+
+      <div class="modules-grid" id="modules-grid">
+        <!-- Modules injected by JS -->
+      </div>
+
+      <div style="margin-top: 1.25rem;">
+        <div style="font-size: 12px; color: var(--muted); margin-bottom: 8px; font-family: var(--mono);">Selected services</div>
+        <div class="services-summary" id="services-summary">
+          <span style="font-size: 13px; color: var(--muted);">None selected yet</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="section" id="schedule">
+      <div class="section-header">
+        <div class="section-icon green">📅</div>
+        <span class="section-title">04 — Schedule & notes</span>
+      </div>
+      <div class="card">
+        <div class="datetime-grid" style="margin-bottom: 14px;">
+          <div class="field">
+            <label>Preferred date</label>
+            <input type="date" id="pdate" />
+          </div>
+          <div class="field">
+            <label>Preferred time</label>
+            <select id="ptime">
+              <option value="">Select a time</option>
+              <option>8:00 AM</option>
+              <option>9:00 AM</option>
+              <option>10:00 AM</option>
+              <option>11:00 AM</option>
+              <option>12:00 PM</option>
+              <option>1:00 PM</option>
+              <option>2:00 PM</option>
+              <option>3:00 PM</option>
+              <option>4:00 PM</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Additional notes</label>
+          <textarea id="notes" placeholder="Describe any issues, sounds, or concerns you're experiencing..." oninput="updateCharCount()"></textarea>
+          <div class="notes-char" id="char-count">0 / 500</div>
+        </div>
+
+        <div class="form-footer">
+          <div class="form-footer-left">
+            <span id="summary-count">0</span> service(s) selected
+          </div>
+          <button class="submit-btn" id="submit-btn" onclick="submitForm()">
+            Submit request ↗
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div class="success-screen" id="success-screen">
+  <div class="success-icon">✓</div>
+  <h2>Request submitted!</h2>
+  <p>We've received your service request and will confirm your appointment within 24 hours.</p>
+  <div class="success-ref" id="success-ref">REF-XXXXXX</div>
+  <br>
+  <button class="reset-btn" onclick="resetForm()">← Submit another request</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>Add custom service</h3>
+    <div class="modal-fields">
+      <div class="field">
+        <label>Service name</label>
+        <input type="text" id="custom-name" placeholder="e.g. AC Recharge" />
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <input type="text" id="custom-desc" placeholder="Short description" />
+      </div>
+      <div class="field">
+        <label>Icon (emoji)</label>
+        <input type="text" id="custom-icon" placeholder="🔩" maxlength="2" />
+      </div>
+      <div class="field">
+        <label>Color</label>
+        <div class="color-picker-row" id="color-picker">
+          <div class="color-dot selected" style="background:#e8ff47" data-color="#e8ff47" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#4f9eff" data-color="#4f9eff" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#ff9f2e" data-color="#ff9f2e" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#28c840" data-color="#28c840" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#ff5f57" data-color="#ff5f57" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#bf5af2" data-color="#bf5af2" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#ff6eb4" data-color="#ff6eb4" onclick="selectColor(this)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-save" onclick="saveCustomService()">Add service</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_MODULES = [
+  { id: 'brake', name: 'Brake inspection', desc: 'Pads, rotors, calipers & fluid check', emoji: '🛑', color: '#ff5f57', badge: 'Popular' },
+  { id: 'fluid', name: 'Fluid inspection', desc: 'Oil, coolant, brake & transmission fluids', emoji: '💧', color: '#4f9eff', badge: null },
+  { id: 'oil', name: 'Oil change', desc: 'Full synthetic or conventional oil & filter', emoji: '🛢️', color: '#ff9f2e', badge: 'Popular' },
+  { id: 'tire', name: 'Tire service', desc: 'Rotation, balance & pressure check', emoji: '⚙️', color: '#e8ff47', badge: null },
+  { id: 'battery', name: 'Battery test', desc: 'Charge level, terminals & alternator test', emoji: '🔋', color: '#28c840', badge: null },
+  { id: 'ac', name: 'A/C service', desc: 'Refrigerant check & system performance', emoji: '❄️', color: '#bf5af2', badge: null },
+  { id: 'engine', name: 'Engine diagnostic', desc: 'OBD-II scan & check engine light analysis', emoji: '🔍', color: '#ff9f2e', badge: null },
+  { id: 'alignment', name: 'Wheel alignment', desc: 'Camber, caster & toe adjustment', emoji: '📐', color: '#4f9eff', badge: null },
+];
+
+let modules = [...DEFAULT_MODULES];
+let selected = new Set();
+let customColor = '#e8ff47';
+
+function renderModules() {
+  const grid = document.getElementById('modules-grid');
+  grid.innerHTML = '';
+  modules.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'module-card' + (selected.has(m.id) ? ' active' : '');
+    card.style.setProperty('--module-color', m.color);
+    card.innerHTML = `
+      <div class="module-top">
+        <span class="module-emoji">${m.emoji}</span>
+        <div class="module-check">${selected.has(m.id) ? '✓' : ''}</div>
+      </div>
+      <div class="module-name">${m.name}</div>
+      <div class="module-desc">${m.desc}</div>
+      ${m.badge ? `<div class="module-badge">${m.badge}</div>` : ''}
+    `;
+    card.onclick = () => toggleModule(m.id);
+    grid.appendChild(card);
+  });
+
+  // Add custom button
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-module-btn';
+  addBtn.innerHTML = `<span style="font-size:18px;">＋</span> Add custom service`;
+  addBtn.onclick = openModal;
+  grid.appendChild(addBtn);
+}
+
+function toggleModule(id) {
+  if (selected.has(id)) selected.delete(id);
+  else selected.add(id);
+  renderModules();
+  renderTags();
+  updateSummaryCount();
+}
+
+function renderTags() {
+  const container = document.getElementById('services-summary');
+  if (selected.size === 0) {
+    container.innerHTML = `<span style="font-size:13px;color:var(--muted)">None selected yet</span>`;
+    return;
+  }
+  container.innerHTML = '';
+  selected.forEach(id => {
+    const m = modules.find(x => x.id === id);
+    if (!m) return;
+    const tag = document.createElement('div');
+    tag.className = 'service-tag';
+    tag.innerHTML = `
+      <span class="tag-dot" style="background:${m.color}"></span>
+      ${m.name}
+      <span class="remove" onclick="toggleModule('${m.id}')">×</span>
+    `;
+    container.appendChild(tag);
+  });
+}
+
+function updateSummaryCount() {
+  document.getElementById('summary-count').textContent = selected.size;
+}
+
+function updateVehiclePreview() {
+  const yr = document.getElementById('vyear').value;
+  const mk = document.getElementById('vmake').value;
+  const mo = document.getElementById('vmodel').value;
+  const pl = document.getElementById('vplate').value;
+  const name = [yr, mk, mo].filter(Boolean).join(' ');
+  document.getElementById('preview-name').textContent = name || 'Your vehicle will appear here';
+  document.getElementById('preview-plate').textContent = pl || 'Enter details above';
+}
+
+function updateCharCount() {
+  const val = document.getElementById('notes').value;
+  document.getElementById('char-count').textContent = `${Math.min(val.length, 500)} / 500`;
+}
+
+function openModal() {
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('custom-name').focus();
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('custom-name').value = '';
+  document.getElementById('custom-desc').value = '';
+  document.getElementById('custom-icon').value = '';
+  customColor = '#e8ff47';
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.toggle('selected', d.dataset.color === customColor));
+}
+function selectColor(el) {
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  customColor = el.dataset.color;
+}
+function saveCustomService() {
+  const name = document.getElementById('custom-name').value.trim();
+  const desc = document.getElementById('custom-desc').value.trim();
+  const icon = document.getElementById('custom-icon').value.trim() || '🔧';
+  if (!name) { document.getElementById('custom-name').focus(); return; }
+  const id = 'custom_' + Date.now();
+  modules.push({ id, name, desc: desc || 'Custom service', emoji: icon, color: customColor, badge: 'Custom' });
+  selected.add(id);
+  closeModal();
+  renderModules();
+  renderTags();
+  updateSummaryCount();
+}
+
+function submitForm() {
+  const fname = document.getElementById('fname').value.trim();
+  const lname = document.getElementById('lname').value.trim();
+  if (!fname || !lname) { document.getElementById('fname').focus(); return; }
+
+  document.getElementById('form-view').style.display = 'none';
+  const s = document.getElementById('success-screen');
+  s.style.display = 'block';
+  document.getElementById('success-ref').textContent = 'REF-' + Math.random().toString(36).toUpperCase().slice(2, 8);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  document.getElementById('form-view').style.display = 'block';
+  document.getElementById('success-screen').style.display = 'none';
+  document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+  document.getElementById('ptime').value = '';
+  selected = new Set();
+  renderModules();
+  renderTags();
+  updateSummaryCount();
+  updateVehiclePreview();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Init
+renderModules();
+document.getElementById('pdate').min = new Date().toISOString().split('T')[0];
+
+// Smooth scroll for nav
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelectorAll('.nav-links a').forEach(x => x.classList.remove('active'));
+    a.classList.add('active');
+    document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>
